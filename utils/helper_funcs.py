@@ -1,4 +1,5 @@
 import os
+import platform
 
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
@@ -21,8 +22,13 @@ EXPENSES_TAGS = {
     "7": "OTHER"
 }
 
+
 def clear():
-    os.system("clear")
+    current_os = platform.system()
+    if current_os == "Linux":
+        os.system("clear")
+    else:
+        os.system("cls")
 
 
 def display_commands():
