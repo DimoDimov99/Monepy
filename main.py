@@ -1,4 +1,4 @@
-from utils.report import write_expense_report, print_category_spendings, save_spend_money_for_month, list_spendings, list_total_spendings_for_months
+from utils.report import write_expense_report, print_category_spendings, save_spend_money_for_month, list_spendings, list_total_spendings_for_months, reset_last_money_value_spend
 from utils.helper_funcs import clear, display_commands
 
 
@@ -13,6 +13,8 @@ def main(user_input):
         list_total_spendings_for_months()
     elif user_input == "save":
         save_spend_money_for_month()
+    elif user_input == "reset":
+        reset_last_money_value_spend()
     elif user_input == "commands":
         display_commands()
     else:

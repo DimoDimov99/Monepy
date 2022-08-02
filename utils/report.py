@@ -1,7 +1,9 @@
 from datetime import datetime
 import os
 import time
+import re
 from utils.helper_funcs import MONTHS, EXPENSES_TAGS, clear, display_expenses_tags
+
 
 ROOT_DIR = os.getcwd()
 
@@ -27,6 +29,40 @@ def check_if_in_ROOT_DIR():
         os.chdir(ROOT_DIR)
 
 
+def reset_last_money_value_spend():
+    value_filename = "value.txt"
+    clear()
+    check_if_in_ROOT_DIR()
+    list_all_dirs()
+    current_dir = os.getcwd()
+    target_dir = ""
+    custom_dir = input("Enter the name of the directory: ")
+    clear()
+    custom_dir = custom_dir.title()
+    target_dir += f"{current_dir}/{custom_dir}"
+    if os.path.isdir(f"{custom_dir}"):
+        os.chdir(target_dir)
+    else:
+        print(f"The directory {custom_dir} does not exist!")
+        return -1
+
+    FLAG = is_value_file_exist()
+    if FLAG:
+        print(f"'{value_filename}' file exist!")
+        user_input = input("Do you want to reset the value to 0?: ")
+        if user_input.lower() == "y":
+            with open(value_filename, "w", encoding="utf8") as file:
+                file.write("0")
+        elif user_input.lower() == "n":
+            print(f"{value_filename} file is not reseted!")
+        else:
+            print("Invalid input!")
+            return -1
+    elif not FLAG:
+        print(f"{value_filename} file does not exist!")
+        return -1
+
+
 def create_work_dir():
     current_month = get_month()
     current_location = os.getcwd()
@@ -44,16 +80,22 @@ def create_work_dir():
         os.chdir(destination_path)
 
 
-def display_work_directory_txt_files() -> None:
-    """Function to display all txt files inside the current directory"""
+def return_work_directory_txt_files() -> None:
+    """Function to return all txt files inside the current directory"""
     txt_files = []
     for x in os.listdir():
         if x.endswith(".txt"):
             txt_files.append(x)
-    if len(txt_files) > 0:
-        print("All txt files:")
-        for txt in txt_files:
-            print(txt)
+    return txt_files
+
+
+
+def is_value_file_exist():
+    file_exist_flag = False
+    all_txt_files = return_work_directory_txt_files()
+    if "value.txt" in all_txt_files:
+        file_exist_flag = True
+    return file_exist_flag
 
 
 def list_all_dirs() -> None:
@@ -150,7 +192,38 @@ def write_expense_report():
         file.write("--------------------------------------\n")
 
 
+def output_total_sum_for_expenses_tag(filename):
+    result = []
+    total_sum = 0
+    step = 2
+    first_num_index = 1
+    second_num_index = 2
+
+
+    with open(filename, "rt", encoding="utf8") as file:
+        for lineno, line in enumerate(file):
+            if lineno % step == 0:
+                #print(line.strip("\n"))
+                for digit in re.findall(r'\d+', line):
+                    result.append(digit)
+
+
+    while first_num_index < len(result) and second_num_index < len(result):
+        join_to_digits = f"{result[first_num_index]}.{result[second_num_index]}"
+        result_to_numeric = float(join_to_digits)
+        total_sum += result_to_numeric
+        first_num_index += 8
+        second_num_index += 8
+                #for digit in re.findall(r'\d+', content):
+                #result.append(digit)
+
+    formatted_output = format(total_sum, '.2f')
+    return formatted_output
+
+
+
 def print_category_spendings():
+    TEMPT_FILENAME = "tempt.txt"
     default_path = os.getcwd()
     if default_path != ROOT_DIR:
         os.chdir(ROOT_DIR)
@@ -179,7 +252,7 @@ def print_category_spendings():
     check_category_year = input("For which year you want to check: ")
     phrase = f"[{check_category_keyword} {check_category_year}]"
     filename = f"{get_month()}_finance_reports.txt"
-    # info = []
+    EXPENSES_TAGS_DATA = []
 
     if os.path.isfile(f"{filename}"):
         """Print the lines in the file that contains the given phrase."""
@@ -187,9 +260,18 @@ def print_category_spendings():
         with open(filename, "r") as file:
             for line in file:
                 if phrase in line:
-                    print(line.replace("\n", ""))
+                    EXPENSES_TAGS_DATA.append((line.replace("\n", "")))
+                    # print(line)
                     # info.append(line)
-                    print(100 * "-")
+                    #print(100 * "-")
+
+        with open(f"{TEMPT_FILENAME}", "w", encoding="utf8") as file:
+            for i in range(len(EXPENSES_TAGS_DATA)):
+                file.write(f"{EXPENSES_TAGS_DATA[i]}\n")
+
+    total_sum_for_expenses_tag = output_total_sum_for_expenses_tag(f"{TEMPT_FILENAME}")
+
+    print(f"You have spend {total_sum_for_expenses_tag} for [{check_category_keyword}] EXPENSES in: {get_month()} {get_current_year()}")
 
 
 def save_spend_money_for_month():
