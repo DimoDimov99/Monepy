@@ -1,7 +1,9 @@
 import os
 import platform
+from datetime import datetime
 
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
 
 COMMANDS = {
     "log expense": "logging a new expense for the month",
@@ -19,7 +21,10 @@ EXPENSES_TAGS = {
     "4": "EDUCATION",
     "5": "COSMETIC",
     "6": "OUTSIDE EATING",
-    "7": "OTHER"
+    "7": "OUTSIDE RELAX",
+    "8": "SUPPLEMENTS",
+    "9": "PRESENTS",
+    "10": "OTHER"
 }
 
 
@@ -42,3 +47,18 @@ def display_expenses_tags():
     for name, command in EXPENSES_TAGS.items():
         print(f"{name} -> {command}".strip("\n"))
         print(30 * "-")
+
+
+def get_month():
+    return datetime.now().strftime("%B")
+
+
+def get_current_month_day():
+    return datetime.now().strftime("%d")
+
+def get_current_year():
+    return datetime.now().strftime("%Y")
+
+
+def get_root_dir():
+    return os.getcwd()

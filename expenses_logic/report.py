@@ -2,21 +2,15 @@ from datetime import datetime
 import os
 import time
 import re
-from utils.helper_funcs import MONTHS, EXPENSES_TAGS, clear, display_expenses_tags
+from utils.helper_funcs import MONTHS, EXPENSES_TAGS, clear, display_expenses_tags, get_month, get_current_month_day, get_current_year, get_root_dir
 
 
-ROOT_DIR = os.getcwd()
+ROOT_DIR = get_root_dir()
 
 
-def get_month():
-    return datetime.now().strftime("%B")
-
-
-def get_current_month_day():
-    return datetime.now().strftime("%d")
-
-def get_current_year():
-    return datetime.now().strftime("%Y")
+def check_if_in_ROOT_DIR():
+    if os.getcwd() != ROOT_DIR:
+        os.chdir(ROOT_DIR)
 
 
 def reset_total_money_spend_value():
@@ -24,9 +18,9 @@ def reset_total_money_spend_value():
             file.write("0")
 
 
-def check_if_in_ROOT_DIR():
-    if os.getcwd() != ROOT_DIR:
-        os.chdir(ROOT_DIR)
+def check_str_for_number(str_input):
+    re_numbers = re.compile('\d')
+    return False if (re_numbers.search(str_input) == None) else True
 
 
 def reset_last_money_value_spend():
@@ -162,6 +156,11 @@ def write_expense_report():
         return -1
 
     stuff_name = input("Enter a thing you spend money on: ")
+
+    if check_str_for_number(stuff_name):
+        print("The activity you spend money on cannot contain digits!")
+        return -1
+
     try:
         stuff_price = float(input("Enter the price you spend: "))
     except ValueError:
@@ -272,6 +271,8 @@ def print_category_spendings():
     total_sum_for_expenses_tag = output_total_sum_for_expenses_tag(f"{TEMPT_FILENAME}")
 
     print(f"You have spend {total_sum_for_expenses_tag} for [{check_category_keyword}] EXPENSES in: {get_month()} {get_current_year()}")
+
+    os.remove(TEMPT_FILENAME)
 
 
 def save_spend_money_for_month():
