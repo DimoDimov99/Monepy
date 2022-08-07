@@ -7,24 +7,26 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July", "Augus
 
 COMMANDS = {
     "log expense": "logging a new expense for the month",
-    "expenses check": "provide you expenses with certain category for month & year",
+    "expenses check": "provide you with information regarding the expenses from certain category for month & year",
     "list spendings": "List all spendings for current month",
-    "list total month spendings": "List total amount of money spend for month",
-    "save": "Save currnet total spend expenses value for the month",
+    "reset": "reset the last saved value from expense in 'value.txt' file",
+    "save all categories spendings": "Save into 'total_spendings_report.txt' file all spending by categories for the current month and the total amount",
+    "display category spendings": "Display all spendings by categories for the current month and the total amount",
     "quit": "quits the application"
 }
 
 EXPENSES_TAGS = {
     "1": "FOOD",
-    "2": "FUEL",
+    "2": "CAR",
     "3": "RELAX",
     "4": "EDUCATION",
     "5": "COSMETIC",
     "6": "OUTSIDE EATING",
-    "7": "OUTSIDE RELAX",
+    "7": "HAVE FUN",
     "8": "SUPPLEMENTS",
     "9": "PRESENTS",
-    "10": "OTHER"
+    "10": "CHARITY",
+    "11": "OTHER"
 }
 
 

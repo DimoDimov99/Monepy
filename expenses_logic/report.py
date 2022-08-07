@@ -23,6 +23,29 @@ def check_str_for_number(str_input):
     return False if (re_numbers.search(str_input) == None) else True
 
 
+def get_all_expenses_tags():
+    expenses_tags = []
+
+    for tag in EXPENSES_TAGS.values():
+        expenses_tags.append(tag)
+
+    return expenses_tags
+
+
+def sum_expenses_values(arr):
+    total = 0
+    for i in arr:
+        total += i
+    total = "{:.2f}".format(total)
+    return total
+
+
+def clear_file_content(filename):
+    with open(filename, "w", encoding="utf8"):
+        pass
+
+
+
 def reset_last_money_value_spend():
     value_filename = "value.txt"
     clear()
@@ -127,19 +150,6 @@ def list_spendings() -> None:
             print(line)
     except FileNotFoundError:
         print(f"Looks like the file {txt_input} does not exist!")
-
-
-def list_total_spendings_for_months():
-    clear()
-    check_if_in_ROOT_DIR()
-    file_name = "Total_month_report_spendings.txt"
-    try:
-        with open(file_name, "rt", encoding="utf8") as file:
-            for line in file:
-                print(line.strip("\n"))
-    except FileNotFoundError:
-        print(f"The file {file_name} does not exist!")
-        return -1
 
 
 def write_expense_report():
@@ -275,26 +285,83 @@ def print_category_spendings():
     os.remove(TEMPT_FILENAME)
 
 
-def save_spend_money_for_month():
-    current_month = get_month()
-    current_year = get_current_year()
-    destination_directory =f"{ROOT_DIR}/{current_month}"
-    current_month_report_file_name = f"{get_month()}_finance_reports.txt"
+def save_every_category_total_spending_for_month():
+    report_file_name = "total_spendings_report.txt"
+    expenses_spendings_values = []
+    ALL_AVAILABLE_EXPENSES_TAGS = get_all_expenses_tags()
+    TEMPT_FILENAME = "tempt.txt"
+    default_path = os.getcwd()
+    if default_path != ROOT_DIR:
+        os.chdir(ROOT_DIR)
+    clear()
+    list_all_dirs()
+    current_dir = os.getcwd()
+    target_dir = ""
+    custom_dir = input("Enter the name of the directory: ")
+    custom_dir = custom_dir.capitalize()
+    target_dir += f"{current_dir}/{custom_dir}"
+    if os.path.isdir(f"{custom_dir}"):
+        os.chdir(target_dir)
+    else:
+        print(f"The directory {custom_dir} does not exist!")
+        return -1
+    clear()
+    # display_expenses_tags()
+    check_category_year = input("For which year you want to check: ")
+    clear_file_content(f"{report_file_name}")
+    for expense_tag in ALL_AVAILABLE_EXPENSES_TAGS:
+        phrase = f"[{expense_tag} {check_category_year}]"
+        filename = f"{get_month()}_finance_reports.txt"
+        EXPENSES_TAGS_DATA = []
+        if os.path.isfile(f"{filename}"):
+            clear()
+            with open(filename, "r") as file:
+                for line in file:
+                    if phrase in line:
+                        EXPENSES_TAGS_DATA.append((line.replace("\n", "")))
+                    # print(line)
+                    # info.append(line)
+                    #print(100 * "-")
+            with open(f"{TEMPT_FILENAME}", "w", encoding="utf8") as file:
+                for i in range(len(EXPENSES_TAGS_DATA)):
+                    file.write(f"{EXPENSES_TAGS_DATA[i]}\n")
+            total_sum_for_expenses_tag = output_total_sum_for_expenses_tag(f"{TEMPT_FILENAME}")
+            expenses_spendings_values.append(float(total_sum_for_expenses_tag))
 
-    try:
-        os.chdir(destination_directory)
-    except FileNotFoundError:
-        print(f"The directory {current_month} does not exist!")
+            with open(f"{report_file_name}", "a", encoding="utf8") as file:
+                file.write(f"You have spend {total_sum_for_expenses_tag} for {expense_tag}")
+                file.write("\n")
+                file.write("--------------------------------------\n")
 
+    with open(f"{report_file_name}", "a", encoding="utf8") as file:
+        file.write(f"The total amount of all spendings is: {sum_expenses_values(expenses_spendings_values)} lv")
+
+    os.remove(TEMPT_FILENAME)
+
+
+def list_all_category_spending_for_month() -> None:
+    clear()
+    check_if_in_ROOT_DIR()
+    list_all_dirs()
+    current_dir = os.getcwd()
+    target_dir = ""
+    custom_dir = input("Enter the name of the directory: ")
+    clear()
+    custom_dir = custom_dir.title()
+    target_dir += f"{current_dir}/{custom_dir}"
+    if os.path.isdir(f"{custom_dir}"):
+        os.chdir(target_dir)
+    else:
+        print(f"The directory {custom_dir} does not exist!")
+        return -1
+    txt_input = "total_spendings_report.txt"
     try:
-        with open(current_month_report_file_name, "rt", encoding="utf8") as file:
-            report = file.readlines()[-2].strip("\n")
+        clear()
+        with open(txt_input, "rt", encoding="utf8") as task_file:
+            lines = task_file.readlines()
+            if len(lines) == 0:
+                print("The file is empty")
+        for line in lines:
+            print(line)
     except FileNotFoundError:
-        print(f"The file {current_month_report_file_name} does not exist!")
-    os.chdir(ROOT_DIR)
-    time.sleep(1)
-    with open("Total_month_report_spendings.txt", "a", encoding="utf8") as file:
-        file.write(f"TOTAL SPENDING FOR [{current_month} {current_year}]:\n")
-        file.write(f"{report}\n")
-        file.write("--------------------------------\n")
-    print("Information successfully saved!")
+        print(f"Looks like the file {txt_input} does not exist!")
