@@ -336,7 +336,7 @@ def save_every_category_total_spending_for_month():
     with open(f"{report_file_name}", "a", encoding="utf8") as file:
         file.write(f"The total amount of all spendings is: {sum_expenses_values(expenses_spendings_values)} lv for {get_month()} {get_current_year()}")
 
-    print("Information saved successful!")
+    print("Information saved successfully!")
     os.remove(TEMPT_FILENAME)
 
 
