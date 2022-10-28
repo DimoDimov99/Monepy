@@ -1,8 +1,9 @@
 from datetime import datetime
+from importlib.abc import FileLoader
 import os
 import time
 import re
-from utils.helper_funcs import MONTHS, EXPENSES_TAGS, clear, display_expenses_tags, get_month, get_current_month_day, get_current_year, get_root_dir
+from utils.helper_funcs import EXPENSES_TAGS, clear, display_expenses_tags, get_month, get_current_month_day, get_current_year, get_root_dir
 
 
 ROOT_DIR = get_root_dir()
@@ -83,11 +84,12 @@ def reset_last_money_value_spend():
 def create_work_dir():
     current_month = get_month()
     current_location = os.getcwd()
+    current_year = get_current_year()
     if current_location != ROOT_DIR:
         os.chdir(ROOT_DIR)
 
-    destination_path = f"{current_location}/{current_month}"
-    if current_month and os.path.exists(destination_path):
+    destination_path = f"{current_location}/{current_month}_{current_year}"
+    if current_month and current_year and os.path.exists(destination_path):
         os.chdir(destination_path)
         # print(os.getcwd())
     else:
@@ -118,7 +120,9 @@ def is_value_file_exist():
 def list_all_dirs() -> None:
     """Function to display all directories inside the current directory"""
     folder = os.getcwd()
-    subfolders = [f.name for f in os.scandir(folder) if f.is_dir() and f.name in MONTHS]
+    # subfolders = [f.name for f in os.scandir(folder) if f.is_dir() and f.name in MONTHS] # deprecated most likely will be deleted!
+    subfolders = [f.name for f in os.scandir(folder) if f.is_dir() and f.name[0].isupper()] # "f.name[0].isupper() checp and diry fix, works for now :D"
+    # main point of "f.name[0].isupper()" is to display only folders with Capitalized letter, which means it will display only Months folders and ignore oders!
     print("All directories: ")
     for folders in subfolders:
         print(folders)
@@ -139,7 +143,7 @@ def list_spendings() -> None:
     else:
         print(f"The directory {custom_dir} does not exist!")
         return -1
-    txt_input = f"{get_month()}_finance_reports.txt"
+    txt_input = f"{custom_dir}_finance_report.txt"
     try:
         clear()
         with open(txt_input, "rt", encoding="utf8") as task_file:
@@ -156,6 +160,7 @@ def write_expense_report():
     check_if_in_ROOT_DIR()
     total_money_spend = 0
     current_month = get_month()
+    # current_year = get_current_year()
     create_work_dir()
     display_expenses_tags()
     stuff_tag = input("Enter a category tag: ")
@@ -177,7 +182,7 @@ def write_expense_report():
         print("Invalid value!")
         return -1
 
-    text_file_name = f"{current_month}_finance_reports.txt"
+    text_file_name = f"{current_month}_{get_current_year()}_finance_report.txt"
 
 
     if not os.path.exists("value.txt"):
@@ -242,6 +247,8 @@ def print_category_spendings():
     target_dir = ""
     custom_dir = input("Enter the name of the directory: ")
     custom_dir = custom_dir.capitalize()
+    custom_dir_stripped = custom_dir.rpartition("_")
+    custom_dir_month = custom_dir_stripped[0]
     target_dir += f"{current_dir}/{custom_dir}"
     if os.path.isdir(f"{custom_dir}"):
         os.chdir(target_dir)
@@ -260,7 +267,7 @@ def print_category_spendings():
 
     check_category_year = input("For which year you want to check: ")
     phrase = f"[{check_category_keyword} {check_category_year}]"
-    filename = f"{get_month()}_finance_reports.txt"
+    filename = f"{custom_dir}_finance_report.txt"
     EXPENSES_TAGS_DATA = []
 
     if os.path.isfile(f"{filename}"):
@@ -280,7 +287,7 @@ def print_category_spendings():
 
     total_sum_for_expenses_tag = output_total_sum_for_expenses_tag(f"{TEMPT_FILENAME}")
 
-    print(f"You have spend {total_sum_for_expenses_tag} for [{check_category_keyword}] EXPENSES in: {get_month()} {get_current_year()}")
+    print(f"You have spend {total_sum_for_expenses_tag} for [{check_category_keyword}] EXPENSES in: {custom_dir_month} {get_current_year()}")
 
     os.remove(TEMPT_FILENAME)
 
@@ -299,6 +306,8 @@ def save_every_category_total_spending_for_month():
     target_dir = ""
     custom_dir = input("Enter the name of the directory: ")
     custom_dir = custom_dir.capitalize()
+    custom_dir_stripped = custom_dir.rpartition("_")
+    custom_dir_month = custom_dir_stripped[0]
     target_dir += f"{current_dir}/{custom_dir}"
     if os.path.isdir(f"{custom_dir}"):
         os.chdir(target_dir)
@@ -311,7 +320,7 @@ def save_every_category_total_spending_for_month():
     clear_file_content(f"{report_file_name}")
     for expense_tag in ALL_AVAILABLE_EXPENSES_TAGS:
         phrase = f"[{expense_tag} {check_category_year}]"
-        filename = f"{get_month()}_finance_reports.txt"
+        filename = f"{custom_dir}_finance_report.txt"
         EXPENSES_TAGS_DATA = []
         if os.path.isfile(f"{filename}"):
             clear()
@@ -334,7 +343,7 @@ def save_every_category_total_spending_for_month():
                 file.write("--------------------------------------\n")
 
     with open(f"{report_file_name}", "a", encoding="utf8") as file:
-        file.write(f"The total amount of all spendings is: {sum_expenses_values(expenses_spendings_values)} lv for {get_month()} {get_current_year()}")
+        file.write(f"The total amount of all spendings is: {sum_expenses_values(expenses_spendings_values)} lv for {custom_dir_month} {check_category_year}")
 
     print("Information saved successfully!")
     os.remove(TEMPT_FILENAME)
@@ -355,7 +364,7 @@ def list_all_category_spending_for_month() -> None:
     else:
         print(f"The directory {custom_dir} does not exist!")
         return -1
-    txt_input = "total_spendings_report.txt"
+    txt_input = f"total_spendings_report.txt"
     try:
         clear()
         with open(txt_input, "rt", encoding="utf8") as task_file:
