@@ -1,5 +1,6 @@
-from expenses_logic.report import write_expense_report, print_category_spendings, list_spendings, reset_last_money_value_spend, save_every_category_total_spending_for_month, list_all_category_spending_for_month
-from utils.helper_funcs import clear, display_commands
+from expenses_logic.report import write_expense_report, print_category_spendings, list_spendings,\
+reset_last_money_value_spend, save_every_category_total_spending_for_month, list_all_category_spending_for_month
+from utilities.helper_funcs import clear, display_commands
 
 
 def main(user_input):

@@ -1,10 +1,16 @@
 from datetime import datetime
-from importlib.abc import FileLoader
 import os
 import time
+import sys
 import re
-from utils.helper_funcs import EXPENSES_TAGS, clear, display_expenses_tags, get_month, get_current_month_day, get_current_year, get_root_dir
 
+
+# Dirty fix for the import issues I am facing and cannot resolve!
+try:
+    from utilities.helper_funcs import EXPENSES_TAGS, clear, display_expenses_tags, get_month, get_current_month_day, get_current_year, get_root_dir
+except ModuleNotFoundError:
+    print("Please, do not run this module!!!Instead run 'main.py' from Root directory of the project (Monepy)")
+    sys.exit(-1)
 
 ROOT_DIR = get_root_dir()
 
@@ -20,7 +26,7 @@ def reset_total_money_spend_value():
 
 
 def check_str_for_number(str_input):
-    re_numbers = re.compile('\d')
+    re_numbers = re.compile('\\d')
     return False if (re_numbers.search(str_input) == None) else True
 
 
@@ -44,7 +50,6 @@ def sum_expenses_values(arr):
 def clear_file_content(filename):
     with open(filename, "w", encoding="utf8"):
         pass
-
 
 
 def reset_last_money_value_spend():
@@ -121,7 +126,7 @@ def list_all_dirs() -> None:
     """Function to display all directories inside the current directory"""
     folder = os.getcwd()
     # subfolders = [f.name for f in os.scandir(folder) if f.is_dir() and f.name in MONTHS] # deprecated most likely will be deleted!
-    subfolders = [f.name for f in os.scandir(folder) if f.is_dir() and f.name[0].isupper()] # "f.name[0].isupper() checp and diry fix, works for now :D"
+    subfolders = [f.name for f in os.scandir(folder) if f.is_dir() and f.name[0].isupper()] # "f.name[0].isupper() cheap and diry fix, works for now :D"
     # main point of "f.name[0].isupper()" is to display only folders with Capitalized letter, which means it will display only Months folders and ignore oders!
     print("All directories: ")
     for folders in subfolders:
@@ -235,7 +240,6 @@ def output_total_sum_for_expenses_tag(filename):
     return formatted_output
 
 
-
 def print_category_spendings():
     TEMPT_FILENAME = "tempt.txt"
     default_path = os.getcwd()
@@ -247,6 +251,8 @@ def print_category_spendings():
     target_dir = ""
     custom_dir = input("Enter the name of the directory: ")
     custom_dir = custom_dir.capitalize()
+    report_year = re.findall(r'\d+', custom_dir)
+    report_year_to_str = "".join(report_year)
     custom_dir_stripped = custom_dir.rpartition("_")
     custom_dir_month = custom_dir_stripped[0]
     target_dir += f"{current_dir}/{custom_dir}"
@@ -265,8 +271,9 @@ def print_category_spendings():
         print("Invalid Expenses tag!")
         return -1
 
-    check_category_year = input("For which year you want to check: ")
-    phrase = f"[{check_category_keyword} {check_category_year}]"
+    # I think check_category_year is not needed anymore since data for different years is logged in folder seperate directory, example December_2022
+    # check_category_year = input("For which year you want to check: ")
+    phrase = f"[{check_category_keyword} {report_year_to_str}]"
     filename = f"{custom_dir}_finance_report.txt"
     EXPENSES_TAGS_DATA = []
 
@@ -287,7 +294,7 @@ def print_category_spendings():
 
     total_sum_for_expenses_tag = output_total_sum_for_expenses_tag(f"{TEMPT_FILENAME}")
 
-    print(f"You have spend {total_sum_for_expenses_tag} for [{check_category_keyword}] EXPENSES in: {custom_dir_month} {get_current_year()}")
+    print(f"You have spend {total_sum_for_expenses_tag} lv for [{check_category_keyword}] EXPENSES in: {custom_dir_month} {report_year_to_str}")
 
     os.remove(TEMPT_FILENAME)
 
@@ -306,6 +313,8 @@ def save_every_category_total_spending_for_month():
     target_dir = ""
     custom_dir = input("Enter the name of the directory: ")
     custom_dir = custom_dir.capitalize()
+    report_year = re.findall(r'\d+', custom_dir)
+    report_year_to_str = "".join(report_year)
     custom_dir_stripped = custom_dir.rpartition("_")
     custom_dir_month = custom_dir_stripped[0]
     target_dir += f"{current_dir}/{custom_dir}"
@@ -316,10 +325,11 @@ def save_every_category_total_spending_for_month():
         return -1
     clear()
     # display_expenses_tags()
-    check_category_year = input("For which year you want to check: ")
+    # I think check_category_year is not needed anymore since data for different years is logged in folder seperate directory, example December_2022
+    # check_category_year = input("For which year you want to check: ")
     clear_file_content(f"{report_file_name}")
     for expense_tag in ALL_AVAILABLE_EXPENSES_TAGS:
-        phrase = f"[{expense_tag} {check_category_year}]"
+        phrase = f"[{expense_tag} {report_year_to_str}]"
         filename = f"{custom_dir}_finance_report.txt"
         EXPENSES_TAGS_DATA = []
         if os.path.isfile(f"{filename}"):
@@ -338,12 +348,12 @@ def save_every_category_total_spending_for_month():
             expenses_spendings_values.append(float(total_sum_for_expenses_tag))
 
             with open(f"{report_file_name}", "a", encoding="utf8") as file:
-                file.write(f"You have spend {total_sum_for_expenses_tag} for {expense_tag}")
+                file.write(f"You have spend {total_sum_for_expenses_tag} lv for {expense_tag}")
                 file.write("\n")
                 file.write("--------------------------------------\n")
 
     with open(f"{report_file_name}", "a", encoding="utf8") as file:
-        file.write(f"The total amount of all spendings is: {sum_expenses_values(expenses_spendings_values)} lv for {custom_dir_month} {check_category_year}")
+        file.write(f"The total amount of all spendings is: {sum_expenses_values(expenses_spendings_values)} lv for {custom_dir_month} {report_year_to_str}")
 
     print("Information saved successfully!")
     os.remove(TEMPT_FILENAME)
@@ -374,4 +384,4 @@ def list_all_category_spending_for_month() -> None:
         for line in lines:
             print(line)
     except FileNotFoundError:
-        print(f"Looks like the file {txt_input} does not exist!")
+        print(f"Looks like the file {txt_input} does not exist!\nMake sure to run 'save all categories spendings' command to generate the report!")
