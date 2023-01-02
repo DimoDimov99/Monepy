@@ -38,12 +38,6 @@ def get_current_year():
 def get_root_dir():
     return os.getcwd()
 
-# Deprectaed, most likely will be deleted
-""" MONTHS = [f"January_{get_current_year()}", f"February_{get_current_year()}", f"March_{get_current_year()}", f"April_{get_current_year()}",
-          f"May_{get_current_year()}", f"June_{get_current_year()}", f"June_2021", f"July_{get_current_year()}", f"August_{get_current_year()}", 
-          f"September_{get_current_year()}", f"October_{get_current_year()}", "October_2023", f"November_{get_current_year()}", f"December_{get_current_year()}"]
-"""
-
 
 COMMANDS = {
     "log expense": "logging a new expense for the month",
@@ -52,6 +46,7 @@ COMMANDS = {
     "reset": "reset the last saved value from expense in 'value.txt' file",
     "save all categories spendings": "Save into 'total_spendings_report.txt' file all spending by categories for the current month and the total amount",
     "display category spendings": "Display all spendings by categories for the current month and the total amount",
+    "print user spendings for month": "Prints user spendings (Dimo, Radina or Both) for currently provided month",
     "quit": "quits the application"
 }
 
@@ -66,5 +61,6 @@ EXPENSES_TAGS = {
     "8": "SUPPLEMENTS",
     "9": "PRESENTS",
     "10": "CHARITY",
-    "11": "OTHER"
+    "11": "TECHNOLOGY",
+    "12": "OTHER",
 }

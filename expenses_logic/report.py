@@ -14,6 +14,19 @@ except ModuleNotFoundError:
 
 ROOT_DIR = get_root_dir()
 
+USERS = {
+    "D": "Dimo",
+    "R": "Radina",
+    "B": "Both",
+}
+
+
+def return_user(USER):
+    user = USERS.get(USER, "None")
+    if user == "None":
+        return -1
+    else:
+        return USERS[USER]
 
 def check_if_in_ROOT_DIR():
     if os.getcwd() != ROOT_DIR:
@@ -167,6 +180,12 @@ def write_expense_report():
     current_month = get_month()
     # current_year = get_current_year()
     create_work_dir()
+    current_user_input = input("Provide current user: (D, R or B) ").upper()
+    check_user = return_user(current_user_input)
+    if check_user == -1:
+        print("Invalid user!")
+        return -1
+
     display_expenses_tags()
     stuff_tag = input("Enter a category tag: ")
     try:
@@ -205,7 +224,7 @@ def write_expense_report():
     with open(text_file_name, "a", encoding="utf8") as file:
         stuff_price = "{:.2f}".format(stuff_price)
         total_money_spend = "{:.2f}".format(total_money_spend)
-        file.write(f"[{stuff_tag} {get_current_year()}] You spend: [{stuff_price} lv] for [{stuff_name}] on [{datetime.now().strftime('%B %d %Y')}] at [{datetime.now().strftime('%H:%M:%S')}]\n")
+        file.write(f"[{stuff_tag} {get_current_year()}] User: [{check_user}] spend: [{stuff_price} lv] for [{stuff_name}] on [{datetime.now().strftime('%B %d %Y')}] at [{datetime.now().strftime('%H:%M:%S')}]\n")
         file.write(f"[{stuff_tag} {get_current_year()}] Total spending for the month: [{total_money_spend} lv]")
         file.write("\n")
         file.write("--------------------------------------\n")
@@ -297,6 +316,107 @@ def print_category_spendings():
     print(f"You have spend {total_sum_for_expenses_tag} lv for [{check_category_keyword}] EXPENSES in: {custom_dir_month} {report_year_to_str}")
 
     os.remove(TEMPT_FILENAME)
+
+
+def calculate_user_spendings(arr):
+    total_sum = 0
+    for i in arr:
+        for j in i:
+            total_sum += float(j)
+
+    formatted_print = "{:.2f}".format(total_sum)
+    return formatted_print
+
+
+def user_spendings_sum_output(filename):
+    zipped_array = []
+    unzipped_array = []
+    unzipped_numbers_only_array = []
+
+    pattern_digits = "\\d+\\.?\\d*"
+    pattern = "\\[\\d+\\.?\\d* lv]"
+    try:
+        with open(filename, "r", encoding="utf=8") as file:
+            lines = file.readlines()
+            for line in lines:
+                zipped_array.append(re.findall(pattern, line))
+    except FileNotFoundError:
+        print("File not found!!!")
+        sys.exit(-1)
+
+    for i in zipped_array:
+        for j in i:
+            unzipped_array.append(j)
+
+    for i in unzipped_array:
+        unzipped_numbers_only_array.append(re.findall(pattern_digits, i))
+
+    result = calculate_user_spendings(unzipped_numbers_only_array)
+
+    return result
+
+
+
+def print_user_spendings():
+    default_path = os.getcwd()
+    if default_path != ROOT_DIR:
+        os.chdir(ROOT_DIR)
+    clear()
+    list_all_dirs()
+    current_dir = os.getcwd()
+    target_dir = ""
+    custom_dir = input("Enter the name of the directory: ")
+    custom_dir = custom_dir.capitalize()
+    report_year = re.findall(r'\d+', custom_dir)
+    report_year_to_str = "".join(report_year)
+    custom_dir_stripped = custom_dir.rpartition("_")
+    custom_dir_month = custom_dir_stripped[0]
+    target_dir += f"{current_dir}/{custom_dir}"
+    if os.path.isdir(f"{custom_dir}"):
+        os.chdir(target_dir)
+    else:
+        print(f"The directory {custom_dir} does not exist!")
+        return -1
+
+    user = input("Enter the name of the user: (D, R or B) ").upper()
+    check_user = return_user(user)
+    if check_user == -1:
+        print("invalid user!")
+        return -1
+
+    USER_FILENAME = f"{check_user}_spendings_{custom_dir}.txt"
+    clear()
+    phrase = f"User: [{check_user}]"
+    filename = f"{custom_dir}_finance_report.txt"
+    USER_EXPENSES = []
+
+    if os.path.isfile(f"{filename}"):
+        """Print the lines in the file that contains the given phrase."""
+        clear()
+        with open(filename, "r") as file:
+            for line in file:
+                if phrase in line:
+                    USER_EXPENSES.append((line.replace("\n", "")))
+                    # print(line)
+                    # info.append(line)
+                    #print(100 * "-")
+
+        with open(USER_FILENAME, "w", encoding="utf8") as file:
+            for i in range(len(USER_EXPENSES)):
+                file.write(f"{USER_EXPENSES[i]}\n")
+                file.write(80 * "-")
+                file.write("\n")
+
+    with open (USER_FILENAME, "r", encoding="utf8") as file:
+        lines = file.readlines()
+
+        for line in lines:
+            print(line)
+
+    total_spendings = user_spendings_sum_output(USER_FILENAME)
+    print(f"User [{check_user}] have spend {total_spendings} lv in: {custom_dir_month} {report_year_to_str}")
+
+    # os.remove(TEMPT_FILENAME)
 
 
 def save_every_category_total_spending_for_month():
