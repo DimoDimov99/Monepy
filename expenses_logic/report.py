@@ -85,10 +85,11 @@ def reset_last_money_value_spend():
     FLAG = is_value_file_exist()
     if FLAG:
         print(f"'{value_filename}' file exist!")
-        user_input = input("Do you want to reset the value to 0?: ")
+        user_input = input("Do you want to reset the value to 0 or other value?(Y/N): ")
         if user_input.lower() == "y":
+            new_value = float(input("Enter new value: "))
             with open(value_filename, "w", encoding="utf8") as file:
-                file.write("0")
+                file.write(str(new_value))
         elif user_input.lower() == "n":
             print(f"{value_filename} file is not reseted!")
         else:

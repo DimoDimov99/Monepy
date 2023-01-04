@@ -43,7 +43,7 @@ COMMANDS = {
     "log expense": "logging a new expense for the month",
     "expenses check": "provide you with information regarding the expenses from certain category for month & year",
     "list spendings": "List all spendings for current month",
-    "reset": "reset the last saved value from expense in 'value.txt' file",
+    "reset": "reset to custom value, the last saved value from expense in 'value.txt' file",
     "save all categories spendings": "Save into 'total_spendings_report.txt' file all spending by categories for the current month and the total amount",
     "display category spendings": "Display all spendings by categories for the current month and the total amount",
     "print user spendings for month": "Prints user spendings (Dimo, Radina or Both) for currently provided month",
