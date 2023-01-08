@@ -127,7 +127,6 @@ def return_work_directory_txt_files() -> None:
     return txt_files
 
 
-
 def is_value_file_exist():
     file_exist_flag = False
     all_txt_files = return_work_directory_txt_files()
@@ -173,6 +172,59 @@ def list_spendings() -> None:
             print(line)
     except FileNotFoundError:
         print(f"Looks like the file {txt_input} does not exist!")
+
+
+def list_total_spending_from_salary() -> None:
+    value_filename = "value.txt"
+    total_spendings_for_month = 0
+    clear()
+    check_if_in_ROOT_DIR()
+    list_all_dirs()
+    current_dir = os.getcwd()
+    target_dir = ""
+    custom_dir = input("Enter the name of the directory: ")
+    clear()
+    custom_dir = custom_dir.title()
+    report_year = re.findall(r'\d+', custom_dir)
+    report_year_to_str = "".join(report_year)
+    custom_dir_stripped = custom_dir.rpartition("_")
+    custom_dir_month = custom_dir_stripped[0]
+    total_spendings_and_saved_money = f"{custom_dir_month}_total_spendings_for_month_and_saved_money.txt"
+    target_dir += f"{current_dir}/{custom_dir}"
+    if os.path.isdir(f"{custom_dir}"):
+        os.chdir(target_dir)
+    else:
+        print(f"The directory {custom_dir} does not exist!")
+        return -1
+    FLAG = is_value_file_exist()
+    if FLAG:
+        print(f"'{value_filename}' file exist!")
+        try:
+            current_salary = float(input("Enter your current salary: "))
+        except ValueError:
+            print("Invalid value!")
+            return -1
+        with open(value_filename, "r", encoding="utf8") as file:
+            lines = file.readlines()
+            total_spendings_for_month = float(lines[0])
+            total_difference = current_salary - total_spendings_for_month
+            total_difference_formatted = "{:.2f}".format(total_difference)
+            current_salary_formatted = "{:.2f}".format(current_salary)
+            total_spendings_for_month_formatted = "{:.2f}".format(total_spendings_for_month)
+        clear()
+        print(f"You have total salary for [{custom_dir_month} {report_year_to_str}]: [{current_salary_formatted} lv]\
+ You have spend [{total_spendings_for_month_formatted} lv] for [{custom_dir_month} {report_year_to_str}]\
+ You were able to save [{total_difference_formatted} lv] for [{custom_dir_month} {report_year_to_str}]")
+        with open(total_spendings_and_saved_money, "w", encoding="utf8") as file:
+            file.write(f"You have total salary for [{custom_dir_month} {report_year_to_str}]: [{current_salary_formatted} lv]\
+ You have spend [{total_spendings_for_month_formatted} lv] for [{custom_dir_month} {report_year_to_str}]\
+ You were able to save [{total_difference_formatted} lv] for [{custom_dir_month} {report_year_to_str}]\n")
+            file.write("*" * 150)
+            file.write("\n")
+
+    elif not FLAG:
+        print(f"{value_filename} file does not exist!")
+        return -1
 
 
 def write_expense_report():

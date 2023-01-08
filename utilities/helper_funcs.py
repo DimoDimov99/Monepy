@@ -47,6 +47,7 @@ COMMANDS = {
     "save all categories spendings": "Save into 'total_spendings_report.txt' file all spending by categories for the current month and the total amount",
     "display category spendings": "Display all spendings by categories for the current month and the total amount",
     "print user spendings for month": "Prints user spendings (Dimo, Radina or Both) for currently provided month",
+    "total spendings for month and saved money": "Prints total spendings for month, earned salary and potentialy saved money for the given month",
     "quit": "quits the application"
 }
 
